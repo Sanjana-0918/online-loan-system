@@ -20,7 +20,7 @@ export default function ApplyLoan() {
   const prev = () => setStep((s) => s - 1);
 
   const handleSubmit = (e) => {
-    e.preventDefault(); // ✅ stop page refresh
+    e.preventDefault();
 
     if (!form.name || !form.age || !form.amount || !form.tenure) {
       alert("Please fill all fields.");
@@ -41,7 +41,6 @@ export default function ApplyLoan() {
       })
     );
 
-    // ✅ reset form so user can apply again later
     setForm({ name: "", age: "", amount: "", tenure: "" });
     setStep(1);
 
@@ -51,7 +50,7 @@ export default function ApplyLoan() {
   return (
     <div className="p-6 min-h-screen bg-gray-900 text-white flex justify-center">
       <div className="bg-gray-800 p-6 rounded-lg w-full max-w-md">
-        {/* Wrap only step 3 inside <form>, so submit works cleanly */}
+        {}
         {step < 3 && (
           <div>
             {step === 1 && (

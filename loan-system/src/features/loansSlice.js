@@ -1,13 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-// localStorage helpers
 const LS_KEY = "loans";
 
 const loadLoans = () => {
   try {
     const raw = localStorage.getItem(LS_KEY);
     const parsed = raw ? JSON.parse(raw) : [];
-    return Array.isArray(parsed) ? parsed : []; // ✅ ensure always array
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
     return [];
   }
@@ -19,7 +18,6 @@ const saveLoans = (loans) => {
   } catch {}
 };
 
-// default daily penalty rate (1% of remaining per day)
 const DEFAULT_DAILY_RATE = 0.01;
 
 const initialState = {
@@ -32,7 +30,6 @@ const loansSlice = createSlice({
   initialState,
   reducers: {
     applyLoan: (state, action) => {
-      // ✅ safeguard: if state.loans is not an array, reset it
       if (!Array.isArray(state.loans)) {
         state.loans = [];
       }
@@ -68,7 +65,7 @@ const loansSlice = createSlice({
     },
 
     payMonthly: (state, action) => {
-      if (!Array.isArray(state.loans)) return; // ✅ safe guard
+      if (!Array.isArray(state.loans)) return;
       const { loanId } = action.payload;
       const loan = state.loans.find((l) => l.id === loanId);
       if (!loan || loan.paid) return;
@@ -90,7 +87,7 @@ const loansSlice = createSlice({
     },
 
     payFull: (state, action) => {
-      if (!Array.isArray(state.loans)) return; // ✅ safe guard
+      if (!Array.isArray(state.loans)) return;
       const { loanId } = action.payload;
       const loan = state.loans.find((l) => l.id === loanId);
       if (!loan || loan.paid) return;

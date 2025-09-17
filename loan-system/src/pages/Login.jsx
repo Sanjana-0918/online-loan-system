@@ -4,7 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useState } from "react";
 
 export default function Login() {
-  const [username, setUsername] = useState(""); // ✅ username instead of email
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -12,7 +12,6 @@ export default function Login() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Get stored user from localStorage
     const storedUser = JSON.parse(localStorage.getItem("user"));
 
     if (!storedUser) {
@@ -21,8 +20,7 @@ export default function Login() {
     }
 
     if (storedUser.username === username && storedUser.password === password) {
-      // Valid login
-      dispatch(login({ username })); // store username in Redux
+      dispatch(login({ username }));
       navigate("/dashboard");
     } else {
       alert("Invalid username or password");

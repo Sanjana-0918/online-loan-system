@@ -4,7 +4,7 @@ import { login } from "../features/authSlice";
 import { useNavigate, Link } from "react-router-dom";
 
 function Signup() {
-  const [email, setEmail] = useState(""); // ✅ email state
+  const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const dispatch = useDispatch();
@@ -13,10 +13,8 @@ function Signup() {
   const handleSignup = (e) => {
     e.preventDefault();
 
-    // Save user data to localStorage (simple mock signup)
     localStorage.setItem("user", JSON.stringify({ email, username, password }));
 
-    // Auto-login after signup
     dispatch(login({ email, username }));
 
     navigate("/dashboard");
@@ -31,7 +29,7 @@ function Signup() {
             type="email"
             placeholder="Email Id"
             value={email}
-            onChange={(e) => setEmail(e.target.value)} // ✅ set email
+            onChange={(e) => setEmail(e.target.value)}
             className="w-full px-3 py-2 border rounded-lg"
             required
           />

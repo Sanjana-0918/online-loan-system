@@ -18,7 +18,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
 
   const currentUser = useSelector((s) => s.auth.currentUser);
-  const loans = useSelector((s) => s.loans.loans) || []; // ✅ fallback to []
+  const loans = useSelector((s) => s.loans.loans) || [];
   const dailyRate = useSelector((s) => s.loans.dailyPenaltyRate ?? 0.01);
 
   const handleLogout = () => {
@@ -26,7 +26,6 @@ export default function Dashboard() {
     navigate("/login");
   };
 
-  // ✅ safeguard so .filter doesn’t break
   const myLoans = Array.isArray(loans)
     ? loans.filter(
         (l) =>
@@ -35,7 +34,6 @@ export default function Dashboard() {
       )
     : [];
 
-  // compute categories
   const now = new Date();
   const overdue = [];
   const upcoming = [];
@@ -49,7 +47,6 @@ export default function Dashboard() {
 
     const dueDate = new Date(loan.dueDate);
     if (loan.paid || loan.remainingAmount <= 0) {
-      // skip
     } else if (now > dueDate) {
       overdue.push(loanWithPenalty);
     } else {
@@ -67,7 +64,7 @@ export default function Dashboard() {
 
   return (
     <div className="p-6 min-h-screen bg-gray-900 text-white">
-      {/* Header */}
+      {}
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold">Dashboard</h1>
@@ -94,7 +91,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Summary Cards */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="bg-gray-800 p-4 rounded-lg shadow">
           <h3 className="font-semibold mb-2">Remaining Loans</h3>
@@ -184,7 +181,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* All Loans */}
+      {}
       <div className="bg-gray-800 p-4 rounded-lg shadow">
         <h3 className="font-semibold mb-2">All My Loans</h3>
         {myLoans.length === 0 ? (

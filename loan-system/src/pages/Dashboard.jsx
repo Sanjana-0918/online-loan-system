@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { payMonthly, payFull } from "../features/loansSlice";
@@ -21,6 +22,8 @@ export default function Dashboard() {
   const loans = useSelector((s) => s.loans.loans) || [];
   const dailyRate = useSelector((s) => s.loans.dailyPenaltyRate ?? 0.01);
 
+  const [successMsg, setSuccessMsg] = useState("");
+
   const handleLogout = () => {
     dispatch(logout());
     navigate("/login");
@@ -42,9 +45,7 @@ export default function Dashboard() {
   myLoans.forEach((loan) => {
     const penalty = calcPenalty(loan.dueDate, loan.remainingAmount, dailyRate);
     const loanWithPenalty = { ...loan, penalty };
-
     remainingTotal += loan.remainingAmount;
-
     const dueDate = new Date(loan.dueDate);
     if (loan.paid || loan.remainingAmount <= 0) {
     } else if (now > dueDate) {
@@ -54,17 +55,62 @@ export default function Dashboard() {
     }
   });
 
-  const handlePayMonthly = (loanId) => {
+  const handlePayMonthlyClick = (loanId) => {
     dispatch(payMonthly({ loanId }));
+    setSuccessMsg("Monthly payment successful!");
+    setTimeout(() => setSuccessMsg(""), 3000);
   };
 
-  const handlePayFull = (loanId) => {
+  const handlePayFullClick = (loanId) => {
     dispatch(payFull({ loanId }));
+    setSuccessMsg("Full payment successful!");
+    setTimeout(() => setSuccessMsg(""), 3000);
   };
+
+  const renderLoanCard = (loanArray) =>
+    loanArray.map((l) => (
+      <div key={l.id} className="border-b border-gray-700 py-2">
+        <div className="flex justify-between items-start">
+          <div>
+            <div className="font-medium">{l.name}</div>
+            <div className="text-sm text-gray-400">
+              Due: {new Date(l.dueDate).toLocaleDateString()}
+            </div>
+            {l.penalty > 0 && (
+              <div className="text-sm text-red-400 font-semibold">
+                Penalty: ₹ {l.penalty.toFixed(2)}
+              </div>
+            )}
+          </div>
+          <div className="text-right">
+            <div>Rem: ₹ {l.remainingAmount.toFixed(2)}</div>
+          </div>
+        </div>
+        <div className="flex gap-2 mt-2">
+          <button
+            onClick={() => handlePayMonthlyClick(l.id)}
+            className="bg-indigo-600 px-3 py-1 rounded text-sm"
+          >
+            Pay Monthly
+          </button>
+          <button
+            onClick={() => handlePayFullClick(l.id)}
+            className="bg-green-600 px-3 py-1 rounded text-sm"
+          >
+            Pay Full
+          </button>
+        </div>
+      </div>
+    ));
 
   return (
     <div className="p-6 min-h-screen bg-gray-900 text-white">
-      {}
+      {successMsg && (
+        <div className="bg-green-600 text-white px-4 py-2 rounded mb-4">
+          {successMsg}
+        </div>
+      )}
+
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold">Dashboard</h1>
@@ -91,7 +137,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="bg-gray-800 p-4 rounded-lg shadow">
           <h3 className="font-semibold mb-2">Remaining Loans</h3>
@@ -104,38 +149,7 @@ export default function Dashboard() {
           {upcoming.length === 0 ? (
             <p className="text-gray-400">No upcoming payments</p>
           ) : (
-            upcoming.map((l) => (
-              <div key={l.id} className="border-b border-gray-700 py-2">
-                <div className="flex justify-between">
-                  <div>
-                    <div className="font-medium">{l.name}</div>
-                    <div className="text-sm text-gray-400">
-                      Due: {new Date(l.dueDate).toLocaleDateString()}
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div>₹ {l.monthlyInstallment.toFixed(2)}</div>
-                    <div className="text-sm text-gray-400">
-                      Rem: ₹ {l.remainingAmount.toFixed(2)}
-                    </div>
-                  </div>
-                </div>
-                <div className="flex gap-2 mt-2">
-                  <button
-                    onClick={() => handlePayMonthly(l.id)}
-                    className="bg-indigo-600 px-3 py-1 rounded text-sm"
-                  >
-                    Pay Monthly
-                  </button>
-                  <button
-                    onClick={() => handlePayFull(l.id)}
-                    className="bg-green-600 px-3 py-1 rounded text-sm"
-                  >
-                    Pay Full
-                  </button>
-                </div>
-              </div>
-            ))
+            renderLoanCard(upcoming)
           )}
         </div>
 
@@ -144,44 +158,11 @@ export default function Dashboard() {
           {overdue.length === 0 ? (
             <p className="text-gray-400">No overdue payments</p>
           ) : (
-            overdue.map((l) => (
-              <div key={l.id} className="border-b border-gray-700 py-2">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <div className="font-medium">{l.name}</div>
-                    <div className="text-sm text-gray-400">
-                      Due: {new Date(l.dueDate).toLocaleDateString()}
-                    </div>
-                    <div className="text-sm text-red-400 font-semibold">
-                      Penalty: ₹ {l.penalty.toFixed(2)}
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div>Rem: ₹ {l.remainingAmount.toFixed(2)}</div>
-                  </div>
-                </div>
-
-                <div className="flex gap-2 mt-2">
-                  <button
-                    onClick={() => handlePayMonthly(l.id)}
-                    className="bg-indigo-600 px-3 py-1 rounded text-sm"
-                  >
-                    Pay Monthly
-                  </button>
-                  <button
-                    onClick={() => handlePayFull(l.id)}
-                    className="bg-green-600 px-3 py-1 rounded text-sm"
-                  >
-                    Pay Full
-                  </button>
-                </div>
-              </div>
-            ))
+            renderLoanCard(overdue)
           )}
         </div>
       </div>
 
-      {}
       <div className="bg-gray-800 p-4 rounded-lg shadow">
         <h3 className="font-semibold mb-2">All My Loans</h3>
         {myLoans.length === 0 ? (

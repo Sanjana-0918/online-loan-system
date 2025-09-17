@@ -2,14 +2,17 @@ import { createSlice } from "@reduxjs/toolkit";
 
 // localStorage helpers
 const LS_KEY = "loans";
+
 const loadLoans = () => {
   try {
     const raw = localStorage.getItem(LS_KEY);
-    return raw ? JSON.parse(raw) : [];
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : []; // ✅ ensure always array
   } catch {
     return [];
   }
 };
+
 const saveLoans = (loans) => {
   try {
     localStorage.setItem(LS_KEY, JSON.stringify(loans));
@@ -29,13 +32,16 @@ const loansSlice = createSlice({
   initialState,
   reducers: {
     applyLoan: (state, action) => {
-      // payload: { owner, name, age, amount, tenure }
+      // ✅ safeguard: if state.loans is not an array, reset it
+      if (!Array.isArray(state.loans)) {
+        state.loans = [];
+      }
+
       const { owner, name, age, amount, tenure } = action.payload;
       const principal = Number(amount);
       const months = Number(tenure);
       const now = new Date();
 
-      // naive dueDate: start + tenure months
       const dueDate = new Date(
         now.getFullYear(),
         now.getMonth() + months,
@@ -54,7 +60,7 @@ const loansSlice = createSlice({
         startDate: now.toISOString(),
         dueDate,
         paid: false,
-        payments: [], // { date, type: 'monthly'|'full', amount }
+        payments: [],
       };
 
       state.loans.push(newLoan);
@@ -62,6 +68,7 @@ const loansSlice = createSlice({
     },
 
     payMonthly: (state, action) => {
+      if (!Array.isArray(state.loans)) return; // ✅ safe guard
       const { loanId } = action.payload;
       const loan = state.loans.find((l) => l.id === loanId);
       if (!loan || loan.paid) return;
@@ -83,6 +90,7 @@ const loansSlice = createSlice({
     },
 
     payFull: (state, action) => {
+      if (!Array.isArray(state.loans)) return; // ✅ safe guard
       const { loanId } = action.payload;
       const loan = state.loans.find((l) => l.id === loanId);
       if (!loan || loan.paid) return;
@@ -100,7 +108,7 @@ const loansSlice = createSlice({
 
     setDailyPenaltyRate: (state, action) => {
       state.dailyPenaltyRate = Number(action.payload);
-      saveLoans(state.loans);
+      saveLoans(Array.isArray(state.loans) ? state.loans : []);
     },
 
     clearLoans: (state) => {

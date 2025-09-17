@@ -18,7 +18,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
 
   const currentUser = useSelector((s) => s.auth.currentUser);
-  const loans = useSelector((s) => s.loans.loans);
+  const loans = useSelector((s) => s.loans.loans) || []; // ✅ fallback to []
   const dailyRate = useSelector((s) => s.loans.dailyPenaltyRate ?? 0.01);
 
   const handleLogout = () => {
@@ -26,11 +26,14 @@ export default function Dashboard() {
     navigate("/login");
   };
 
-  // filter loans for this user
-  const myLoans = loans.filter(
-    (l) =>
-      l.owner === (currentUser?.username ?? currentUser?.email ?? currentUser)
-  );
+  // ✅ safeguard so .filter doesn’t break
+  const myLoans = Array.isArray(loans)
+    ? loans.filter(
+        (l) =>
+          l.owner ===
+          (currentUser?.username ?? currentUser?.email ?? currentUser)
+      )
+    : [];
 
   // compute categories
   const now = new Date();
@@ -46,7 +49,7 @@ export default function Dashboard() {
 
     const dueDate = new Date(loan.dueDate);
     if (loan.paid || loan.remainingAmount <= 0) {
-      // skip in upcoming/overdue but listed under "All My Loans"
+      // skip
     } else if (now > dueDate) {
       overdue.push(loanWithPenalty);
     } else {
